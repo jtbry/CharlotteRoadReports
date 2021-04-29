@@ -8,8 +8,8 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/jtbry/CharlotteRoadReports/models"
 	"github.com/jtbry/CharlotteRoadReports/routes"
-	newrelic "github.com/newrelic/go-agent"
-	"github.com/newrelic/go-agent/_integrations/nrgin/v1"
+	nrgin "github.com/newrelic/go-agent/v3/integrations/nrgin"
+	"github.com/newrelic/go-agent/v3/newrelic"
 )
 
 func main() {
@@ -38,8 +38,10 @@ func main() {
 	} else {
 		nrlicense := os.Getenv("NEW_RELIC_LICENSE_KEY")
 		if nrlicense != "" {
-			nrcfg := newrelic.NewConfig("CharlotteRoadReports", nrlicense)
-			app, err := newrelic.NewApplication(nrcfg)
+			app, err := newrelic.NewApplication(
+				newrelic.ConfigAppName("CharlotteRoadReport"),
+				newrelic.ConfigLicense(nrlicense),
+			)
 			if err != nil {
 				log.Printf("%s\nUnable to create New Relic app\n", err)
 			} else {
