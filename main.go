@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -11,6 +12,12 @@ import (
 	nrgin "github.com/newrelic/go-agent/v3/integrations/nrgin"
 	"github.com/newrelic/go-agent/v3/newrelic"
 )
+
+func indexHandler(ctx *gin.Context) {
+	ctx.HTML(http.StatusOK, "index.tmpl.html", gin.H{
+		"actives": models.FindActiveIncidents(),
+	})
+}
 
 func main() {
 	// Set up environment
@@ -49,6 +56,10 @@ func main() {
 			}
 		}
 	}
+
+	web.LoadHTMLGlob("templates/*.tmpl.html")
+	web.Static("/static", "static")
+	web.GET("/", indexHandler)
 
 	api := web.Group("/api")
 	routes.RegisterIncidentsApi(api)

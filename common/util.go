@@ -15,3 +15,9 @@ func ParseIso8601Local(str string) (time.Time, error) {
 	}
 	return t, nil
 }
+
+// Get Eastern Time local string from UTC time object
+func UtcTimeToLocalString(t time.Time) string {
+	location, _ := time.LoadLocation("America/New_York")
+	return t.In(location).Format("1/2 3:04 PM")
+}

@@ -1,0 +1,25 @@
+{{template "header.tmpl.html"}}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Charlotte Road Reports</h2>
+    <p>{{ len .actives }} active incidents</p>
+    {{ range .actives }}
+        <div class="card mb-2">
+            <div class="card-body">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-1"><span class="badge bg-danger">Active</span></div>
+                        <div class="col-md-2">{{.DateTimeString}}</div>
+                        <div class="col-md-4">{{.TypeDesc}}</div>
+                        <div class="col-md-3">{{.Address}}</div>
+                        <div class="col-md-2">{{.TypeSubDesc}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {{ end }}
+</div>
+
+<script>
+
+</script>
+{{template "footer.tmpl.html"}}

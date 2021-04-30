@@ -6,11 +6,10 @@ import (
 )
 
 func activeIncidents(ctx *gin.Context) {
-	actives := make([]models.Incident, 0)
-	models.DB.Where("is_active = ?", 1).Find(&actives)
-	ctx.JSON(200, actives)
+	ctx.JSON(200, models.FindActiveIncidents())
 }
 
+// Register endpoints for the /api/incidents route
 func RegisterIncidentsApi(router *gin.RouterGroup) {
 	router.GET("/incidents/active", activeIncidents)
 }
