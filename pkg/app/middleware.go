@@ -43,5 +43,5 @@ func (s *Server) setMiddleware() {
 	// Set shared middleware here
 	s.router.Use(gin.Recovery())
 	s.router.LoadHTMLGlob("web/templates/*.tmpl.html")
-	s.router.Static("web/static", "static")
+	s.router.Static("/static", "web/static")
 }
