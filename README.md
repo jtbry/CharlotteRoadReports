@@ -17,10 +17,10 @@ Requirements
 `git clone https://github.com/jtbry/CharlotteRoadReports`
 
 #### 2. Set up environment
-See the example.env file for an example of the required environment variables. You can set these in your own .env file or by setting your environment variables appropriately.
+You can either set environment variables traditionally through your OS or by creating a `.env` file in the root directory. See the `example.env` file to get an idea of what environment variables are needed.
 
 #### 3. Run the project
-You can use `go run .` or `go build` and run the resulting binary
+Make sure your current working directory is the project's root folder. From there you can use `go run ./cmd/cltrr` or `go build ./cmd/cltrr` and run the resulting binary.
 
 <br />
 

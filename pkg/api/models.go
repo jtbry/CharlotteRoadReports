@@ -1,10 +1,6 @@
-package models
+package api
 
-import (
-	"time"
-
-	"github.com/jtbry/CharlotteRoadReports/common"
-)
+import "time"
 
 type Incident struct {
 	ID             string  `json:"eventNo"`
@@ -21,16 +17,4 @@ type Incident struct {
 	DateTime       time.Time
 	DateTimeString string `json:"eventDateTime,omitempty" gorm:"-"`
 	IsActive       int
-}
-
-// Find all active incidents
-func FindActiveIncidents() []Incident {
-	actives := make([]Incident, 0)
-	DB.Where("is_active = ?", 1).Order("date_time").Find(&actives)
-
-	for i := 0; i < len(actives); i++ {
-		actives[i].DateTimeString = common.UtcTimeToLocalString(actives[i].DateTime)
-	}
-
-	return actives
 }
