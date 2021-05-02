@@ -84,7 +84,10 @@ func processCmpdData(data []byte, db *gorm.DB) {
 	}).Create(&activeIncidents)
 
 	// Update which incidents are active
-	db.Table("incidents").Not(map[string]interface{}{"id": activeIDs}).Update("is_active", 0)
+	// WHERE is_active = 1 AND id NOT IN activeIds - UPDATE is_active = 0 AND end_date_time = NOW
+	// EndDateTime has to be a pointer so that can be a null value in the database
+	now := time.Now()
+	db.Table("incidents").Where("is_active = 1").Not(map[string]interface{}{"id": activeIDs}).Select("is_active", "end_date_time").Updates(api.Incident{IsActive: 0, EndDateTime: &now})
 }
 
 // Parse an ISO8601 Local (Eastern Time) to time.Time
