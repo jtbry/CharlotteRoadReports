@@ -78,6 +78,12 @@ func processCmpdData(data []byte, db *gorm.DB) {
 		activeIncidents[i].IsActive = 1
 	}
 
+	if len(activeIDs) <= 0 || len(activeIncidents) <= 0 {
+		// Don't execute if there are no active events.
+		// Prevents verbose error from GORM
+		return
+	}
+
 	// Upsert to database
 	db.Clauses(clause.OnConflict{
 		UpdateAll: true,
