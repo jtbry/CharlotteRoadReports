@@ -26,6 +26,10 @@ func (svc *incidentService) FindActiveIncidents() []Incident {
 	actives := svc.storage.FindActiveIncidents()
 	for i := 0; i < len(actives); i++ {
 		actives[i].DateTimeString = utcToLocalString(actives[i].DateTime)
+		// N/A looks nicer than an empty address
+		if actives[i].Address == "" {
+			actives[i].Address = "N/A"
+		}
 	}
 	return actives
 }
@@ -33,5 +37,5 @@ func (svc *incidentService) FindActiveIncidents() []Incident {
 // Convert UTC from storage to human readable Eastern Time
 func utcToLocalString(t time.Time) string {
 	location, _ := time.LoadLocation("America/New_York")
-	return t.In(location).Format("1/2 3:04 PM")
+	return t.In(location).Format("1/2 - 3:04 PM")
 }
