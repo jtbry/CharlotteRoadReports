@@ -26,7 +26,6 @@ func (svc *incidentService) FindActiveIncidents() []Incident {
 	actives := svc.storage.FindActiveIncidents()
 	for i := 0; i < len(actives); i++ {
 		actives[i].DateTimeString = utcToLocalString(actives[i].DateTime)
-		actives[i].EndDateTimeString = utcToLocalString(*actives[i].EndDateTime)
 		// N/A looks nicer than an empty address
 		if actives[i].Address == "" {
 			actives[i].Address = "N/A"
