@@ -131,7 +131,7 @@ function ActiveIncidentsTable(props) {
                 <TableHead>
                     <TableRow>
                         <StyledTableCell>ID</StyledTableCell>
-                        <StyledTableCell>Date Time</StyledTableCell>
+                        <StyledTableCell>Start Time</StyledTableCell>
                         <StyledTableCell>Description</StyledTableCell>
                         <StyledTableCell>Address</StyledTableCell>
                     </TableRow>

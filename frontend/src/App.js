@@ -3,7 +3,8 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { CssBaseline, Tabs, Tab, AppBar, Container, withWidth, Typography } from '@material-ui/core';
 import { BrowserRouter, Link, Switch, Route, useLocation } from 'react-router-dom'
 import { ReactComponent as ErrorSvg } from './assets/undraw_error.svg';
-import Home from './pages/Home'
+import Home from './pages/Home';
+import Incident from './pages/Incident';
 
 const theme = createMuiTheme({
   palette: {
@@ -65,6 +66,9 @@ export default function App(props) {
                     <Route exact path="/">
                         <Home />
                     </Route>
+ 
+                    <Route path="/incident/:eventNo" component={Incident} />
+ 
                     <Route path="*">
                         <Container style={{textAlign: "center", padding: "1rem"}}>
                             <ErrorSvg style={{marginTop: "1rem"}} width="35%" height="35%" />
@@ -72,6 +76,16 @@ export default function App(props) {
                             <Typography variant="h5">That page isn't available.</Typography>
                             <Typography variant="h6">If you're lost, try going <a href="/">home</a>.</Typography>
                         </Container>
+                    </Route>
+                </Switch>
+
+                {/* Footer, don't render on the map page */}
+                <Switch>
+                    <Route path="/map" />
+                    <Route path="*">
+                        <div style={{textAlign: 'center', margin: "1rem", overflow:"hidden"}}>
+                            <Typography variant="subtitle1">CharlotteRoadReports, contribute on <a href="https://github.com/jtbry/CharlotteRoadReports" rel="noreferrer" target="_blank">Github</a></Typography>
+                        </div>
                     </Route>
                 </Switch>
             </ThemeProvider>
