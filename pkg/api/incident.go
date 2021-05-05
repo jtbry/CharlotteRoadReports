@@ -5,11 +5,13 @@ import "time"
 // Contains the required methods for IncidentService
 type IncidentService interface {
 	FindActiveIncidents() []Incident
+	FindIncidentById(eventNo string) Incident
 }
 
 // Allow storage interaction without being aware of the implementation
 type IncidentRepository interface {
 	FindActiveIncidents() []Incident
+	FindIncidentById(eventNo string) Incident
 }
 
 type incidentService struct {
@@ -38,4 +40,9 @@ func (svc *incidentService) FindActiveIncidents() []Incident {
 func utcToLocalString(t time.Time) string {
 	location, _ := time.LoadLocation("America/New_York")
 	return t.In(location).Format("1/2 - 3:04 PM")
+}
+
+// Find an incident by eventNo
+func (svc *incidentService) FindIncidentById(eventNo string) Incident {
+	return svc.storage.FindIncidentById(eventNo)
 }

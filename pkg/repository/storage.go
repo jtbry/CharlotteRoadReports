@@ -8,6 +8,7 @@ import (
 type Storage interface {
 	RunMigrations()
 	FindActiveIncidents() []api.Incident
+	FindIncidentById(eventNo string) api.Incident
 }
 
 type storage struct {
@@ -29,4 +30,11 @@ func (s *storage) FindActiveIncidents() []api.Incident {
 	actives := make([]api.Incident, 0)
 	s.db.Where("is_active = ?", 1).Order("date_time").Find(&actives)
 	return actives
+}
+
+// Find an incident by it's eventNo (ID)
+func (s *storage) FindIncidentById(eventNo string) api.Incident {
+	var incident api.Incident
+	s.db.Where("id = ?", eventNo).Limit(1).Find(&incident)
+	return incident
 }
