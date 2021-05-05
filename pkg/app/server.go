@@ -3,20 +3,20 @@ package app
 import (
 	"os"
 
-	"github.com/gin-gonic/gin"
 	"github.com/jtbry/CharlotteRoadReports/pkg/api"
+	"github.com/labstack/echo/v4"
 )
 
 // Contains the params required for web server operations
 type Server struct {
-	router          *gin.Engine
+	echo            *echo.Echo
 	incidentService api.IncidentService
 }
 
 // Create a new server object
-func NewServer(router *gin.Engine, incidentService api.IncidentService) *Server {
+func NewServer(e *echo.Echo, incidentService api.IncidentService) *Server {
 	return &Server{
-		router:          router,
+		echo:            e,
 		incidentService: incidentService,
 	}
 }
@@ -25,7 +25,12 @@ func NewServer(router *gin.Engine, incidentService api.IncidentService) *Server 
 func (s *Server) Run() error {
 	s.setMiddleware()
 	s.setRoutes()
-	err := s.router.Run(":" + os.Getenv("PORT"))
+
+	if os.Getenv("ENV") == "development" {
+		s.echo.Debug = true
+	}
+
+	err := s.echo.Start(":" + os.Getenv("PORT"))
 	if err != nil {
 		return err
 	}

@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gin-gonic/gin"
-	"github.com/newrelic/go-agent/v3/integrations/nrgin"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/newrelic/go-agent/v3/integrations/nrecho-v4"
 	"github.com/newrelic/go-agent/v3/newrelic"
 )
 
-func newRelicMiddleware() (gin.HandlerFunc, error) {
+func newRelicMiddleware() (echo.MiddlewareFunc, error) {
 	license := os.Getenv("NEW_RELIC_LICENSE_KEY")
 	if license == "" {
 		return nil, errors.New("missing $NEW_RELIC_LICENSE_KEY")
@@ -23,25 +24,25 @@ func newRelicMiddleware() (gin.HandlerFunc, error) {
 	if err != nil {
 		return nil, err
 	}
-	return nrgin.Middleware(app), nil
+	return nrecho.Middleware(app), nil
 }
 
 func (s *Server) setMiddleware() {
 	if os.Getenv("ENV") == "development" {
 		// Set development only middleware here
-		s.router.Use(gin.Logger())
+		s.echo.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+			Format: "${method}\t${path}\t${status}\t${latency_human}\n",
+		}))
 	} else {
 		// Set production only middleware here
 		nrmiddleware, err := newRelicMiddleware()
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			s.router.Use(nrmiddleware)
+			s.echo.Use(nrmiddleware)
 		}
 	}
 
 	// Set shared middleware here
-	s.router.Use(gin.Recovery())
-	s.router.LoadHTMLGlob("web/templates/*.tmpl.html")
-	s.router.Static("/static", "web/static")
+	s.echo.Use(middleware.Recover())
 }

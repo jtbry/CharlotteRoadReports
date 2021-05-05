@@ -3,19 +3,11 @@ package app
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 )
 
-func (s *Server) handleNoRoute() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		ctx.HTML(http.StatusNotFound, "no_route.tmpl.html", nil)
-	}
-}
-
-func (s *Server) handleIndex() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		ctx.HTML(http.StatusOK, "index.tmpl.html", gin.H{
-			"actives": s.incidentService.FindActiveIncidents(),
-		})
+func (s *Server) handleIncidentsActive() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		return ctx.JSON(http.StatusOK, s.incidentService.FindActiveIncidents())
 	}
 }

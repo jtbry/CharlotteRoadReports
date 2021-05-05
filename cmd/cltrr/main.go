@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/jtbry/CharlotteRoadReports/pkg/api"
 	"github.com/jtbry/CharlotteRoadReports/pkg/app"
 	"github.com/jtbry/CharlotteRoadReports/pkg/repository"
+	"github.com/labstack/echo/v4"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -41,14 +41,14 @@ func run() error {
 	storage := repository.NewStorage(db)
 	storage.RunMigrations()
 
-	// Create router
-	router := gin.New()
+	// Create web server
+	e := echo.New()
 
 	// Create services
 	incidentService := api.NewIncidentService(storage)
 
 	// Create and start server
-	server := app.NewServer(router, incidentService)
+	server := app.NewServer(e, incidentService)
 	err = server.Run()
 	if err != nil {
 		return err
