@@ -5,6 +5,7 @@ import { BrowserRouter, Link, Switch, Route, useLocation } from 'react-router-do
 import { ReactComponent as ErrorSvg } from './assets/undraw_error.svg';
 import Home from './pages/Home';
 import Incident from './pages/Incident';
+import Map from './pages/Map';
 
 const theme = createMuiTheme({
   palette: {
@@ -68,6 +69,10 @@ export default function App(props) {
                     </Route>
  
                     <Route path="/incident/:eventNo" component={Incident} />
+
+                    <Route exact path="/map">
+                        <Map />
+                    </Route>
  
                     <Route path="*">
                         <Container style={{textAlign: "center", padding: "1rem"}}>

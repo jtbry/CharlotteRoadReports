@@ -2,7 +2,7 @@ import { Container, Grid, Paper, Table, TableBody, TableCell, TableContainer, Ta
 import React, { useEffect, useState } from 'react';
 import { ReactComponent as ErrorSvg } from '../assets/undraw_error.svg';
 import Loading from '../components/Loading';
-import Axios from 'axios';
+import axios from 'axios';
 import { Bar } from 'react-chartjs-2';
 import { Link } from 'react-router-dom';
 
@@ -160,13 +160,13 @@ export default function Home(props) {
     const [data, setData] = useState(null);
     useEffect(() => {
         const getActiveIncidents = () => {
-            Axios.get('/api/incidents/active')
+            axios.get('/api/incidents/active')
                 .then((response) => {
                     setData( response.data )
                 })
                 .catch((error) => {
                     console.log(error);
-                    setData({ error: true })
+                    setData({ error: error })
                 });    
         }
 
@@ -175,7 +175,7 @@ export default function Home(props) {
         return () => {
             clearInterval(t);
         }
-    }, [])
+    }, []);
 
     if(data === null) {
         return(<Loading />);
