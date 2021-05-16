@@ -27,6 +27,11 @@ func beginPolling(repo api.IncidentRepository) {
 				activeIDs[i] = incidents[i].ID
 			}
 
+			if activesLen <= 0 {
+				// Don't execute if there are no active events
+				// Prevents a verbose error from GORM
+				return
+			}
 			repo.UpsertIncidentArray(incidents)
 			repo.UpdateActiveIncidents(activeIDs)
 		}()
