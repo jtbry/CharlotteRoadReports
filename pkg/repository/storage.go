@@ -9,6 +9,7 @@ type Storage interface {
 	RunMigrations()
 	FindActiveIncidents() []api.Incident
 	FindIncidentById(eventNo string) api.Incident
+	FindIncidentsWithFilter(filter api.IncidentFilter) []api.Incident
 }
 
 type storage struct {
@@ -37,4 +38,12 @@ func (s *storage) FindIncidentById(eventNo string) api.Incident {
 	var incident api.Incident
 	s.db.Where("id = ?", eventNo).Limit(1).Find(&incident)
 	return incident
+}
+
+// Find all incidents that match the given filters
+func (s *storage) FindIncidentsWithFilter(filter api.IncidentFilter) []api.Incident {
+	query := s.db.Where("date_time >= ? AND date_time <= ? AND is_active = ?", filter.DateRangeStart, filter.DateRangeEnd, filter.ActivesOnly)
+	results := make([]api.Incident, 0)
+	query.Find(&results)
+	return results
 }

@@ -6,12 +6,14 @@ import "time"
 type IncidentService interface {
 	FindActiveIncidents() []Incident
 	FindIncidentById(eventNo string) Incident
+	FindIncidentsWithFilter(filter IncidentFilter) []Incident
 }
 
 // Allow storage interaction without being aware of the implementation
 type IncidentRepository interface {
 	FindActiveIncidents() []Incident
 	FindIncidentById(eventNo string) Incident
+	FindIncidentsWithFilter(filter IncidentFilter) []Incident
 }
 
 type incidentService struct {
@@ -45,4 +47,9 @@ func utcToLocalString(t time.Time) string {
 // Find an incident by eventNo
 func (svc *incidentService) FindIncidentById(eventNo string) Incident {
 	return svc.storage.FindIncidentById(eventNo)
+}
+
+// Find all incidents that match the given filters
+func (svc *incidentService) FindIncidentsWithFilter(filter IncidentFilter) []Incident {
+	return svc.storage.FindIncidentsWithFilter(filter)
 }

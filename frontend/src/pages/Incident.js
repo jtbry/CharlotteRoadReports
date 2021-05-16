@@ -94,7 +94,7 @@ export default function Incident(props) {
     }, [eventNo]);
 
     if(incident === null) {
-        return(<Loading />);
+        return(<Loading pad />);
     } else if(incident.error) {
         return(
             <Container style={{textAlign: "center", padding: "1rem"}}>

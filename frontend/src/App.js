@@ -6,6 +6,7 @@ import { ReactComponent as ErrorSvg } from './assets/undraw_error.svg';
 import Home from './pages/Home';
 import Incident from './pages/Incident';
 import Map from './pages/Map';
+import Explorer from './pages/Explorer';
 
 const theme = createMuiTheme({
   palette: {
@@ -45,7 +46,8 @@ function Nav(props) {
                         <Tab wrapped component={Link} to="/" value="/" label="Active Incidents"/>
                         <Tab wrapped component={Link} to="/map" value="/map" label="Active Map"/>
                         <Tab wrapped component={Link} to="/explorer" value="/explorer" label="Incident Explorer"/>
-                        <Tab wrapped component={Link} to="/stats" value="/stats" label="Statistics Dashboard"/>
+                        {/* tab commented out while still in progress */}
+                        {/* <Tab wrapped component={Link} to="/stats" value="/stats" label="Statistics Dashboard"/> */}
                     </Tabs>
                 </Container>
             </AppBar>
@@ -72,6 +74,10 @@ export default function App(props) {
 
                     <Route exact path="/map">
                         <Map />
+                    </Route>
+
+                    <Route exact path="/explorer">
+                        <Explorer />
                     </Route>
  
                     <Route path="*">

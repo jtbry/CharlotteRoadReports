@@ -18,3 +18,12 @@ type Incident struct {
 	DateTimeString string `json:"eventDateTime,omitempty" gorm:"-"`
 	IsActive       int
 }
+
+type IncidentFilter struct {
+	// Start date for the date range
+	DateRangeStart time.Time
+	// End date for the date range
+	DateRangeEnd time.Time
+	// Whether or not IsActive must be true
+	ActivesOnly int
+}

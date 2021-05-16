@@ -21,7 +21,7 @@ export default function Map(props) {
     }, []);
 
     if(data === null) {
-        return(<Loading />);
+        return(<Loading pad />);
     } else if(data.error) {
         return(
             <Container style={{textAlign: "center", padding: "1rem"}}>

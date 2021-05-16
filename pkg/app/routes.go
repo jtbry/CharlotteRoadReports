@@ -12,6 +12,7 @@ func (s *Server) setRoutes() {
 	api := s.echo.Group("/api")
 	api.GET("/incidents/active", s.handleIncidentsActive())
 	api.GET("/incidents/:eventNo", s.handleIncidentById())
+	api.GET("/incidents/search", s.handleIncidentSearch())
 
 	// Serve react app
 	// This will only serve the production react app if available
