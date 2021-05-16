@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
-import { AppBar, Container, Grid, Paper, Typography, Switch, TableContainer, Table, TableCell, withStyles, TableHead, TableRow, TableBody } from '@material-ui/core';
-import { Link } from 'react-router-dom';
+import { AppBar, Container, Grid, Paper, Typography, Switch } from '@material-ui/core';
 import moment from 'moment';
 import 'react-dates/initialize';
 import { SingleDatePicker } from 'react-dates';
@@ -10,49 +9,7 @@ import lodash from 'lodash';
 import axios from 'axios';
 import Loading from '../components/Loading';
 import { ReactComponent as ErrorSvg } from '../assets/undraw_error.svg';
-
-function IncidentDataTable(props) {
-    const StyledTableCell = withStyles((theme) => ({
-        head: {
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.primary.contrastText,
-            fontSize: 16,
-        },
-        body: {
-            fontSize: 14,
-        },
-    }))(TableCell);
-
-    return(
-        <TableContainer component={Paper}>
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <StyledTableCell>ID</StyledTableCell>
-                        <StyledTableCell>Start Time</StyledTableCell>
-                        <StyledTableCell>Description</StyledTableCell>
-                        <StyledTableCell>Address</StyledTableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {props.data.map(incident => {
-                        const dt = new Date(incident.DateTime);
-                        return(
-                            <TableRow key={incident.eventNo}>
-                                <StyledTableCell>
-                                    <Link to={`/incident/${incident.eventNo}`}>{incident.eventNo}</Link>
-                                </StyledTableCell>
-                                <StyledTableCell>{`${dt.getMonth()+1}/${dt.getDate()}, ${dt.toLocaleTimeString()}`}</StyledTableCell>
-                                <StyledTableCell>{incident.typeDescription}</StyledTableCell>
-                                <StyledTableCell>{incident.address}</StyledTableCell>
-                            </TableRow>
-                        );
-                    })}
-                </TableBody>
-            </Table>
-        </TableContainer>
-    );
-}
+import IncidentDataTable from '../components/IncidentDataTable';
 
 function IsActiveFilter(props) {
     const [checked, setChecked] = React.useState(props.default);

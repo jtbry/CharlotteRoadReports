@@ -1,10 +1,10 @@
-import { Container, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, withStyles } from '@material-ui/core';
+import { Container, Grid, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { ReactComponent as ErrorSvg } from '../assets/undraw_error.svg';
 import Loading from '../components/Loading';
 import axios from 'axios';
 import { Bar } from 'react-chartjs-2';
-import { Link } from 'react-router-dom';
+import IncidentDataTable from '../components/IncidentDataTable';
 
 function DivisionDistributionChart(props) {
     const divisionLabels = [];
@@ -113,49 +113,6 @@ function TypeDistributionChart(props) {
     );
 }
 
-function ActiveIncidentsTable(props) {
-    const StyledTableCell = withStyles((theme) => ({
-        head: {
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.primary.contrastText,
-            fontSize: 16,
-        },
-        body: {
-            fontSize: 14,
-        },
-    }))(TableCell);
-
-    return(
-        <TableContainer component={Paper}>
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <StyledTableCell>ID</StyledTableCell>
-                        <StyledTableCell>Start Time</StyledTableCell>
-                        <StyledTableCell>Description</StyledTableCell>
-                        <StyledTableCell>Address</StyledTableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {props.data.map(incident => {
-                        const dt = new Date(incident.DateTime);
-                        return(
-                            <TableRow key={incident.eventNo}>
-                                <StyledTableCell>
-                                    <Link to={`/incident/${incident.eventNo}`}>{incident.eventNo}</Link>
-                                </StyledTableCell>
-                                <StyledTableCell>{`${dt.getMonth()+1}/${dt.getDate()}, ${dt.toLocaleTimeString()}`}</StyledTableCell>
-                                <StyledTableCell>{incident.typeDescription}</StyledTableCell>
-                                <StyledTableCell>{incident.address}</StyledTableCell>
-                            </TableRow>
-                        );
-                    })}
-                </TableBody>
-            </Table>
-        </TableContainer>
-    );
-}
-
 export default function Home(props) {
     const [data, setData] = useState(null);
     useEffect(() => {
@@ -201,7 +158,7 @@ export default function Home(props) {
                         <Typography variant="subtitle1" gutterBottom>
                             {data.length} active incidents
                         </Typography>
-                        <ActiveIncidentsTable data={data} />
+                        <IncidentDataTable data={data} />
                     </Grid>
                 </Grid>
             </Container>
