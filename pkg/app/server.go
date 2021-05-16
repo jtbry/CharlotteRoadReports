@@ -9,15 +9,15 @@ import (
 
 // Contains the params required for web server operations
 type Server struct {
-	echo            *echo.Echo
-	incidentService api.IncidentService
+	echo         *echo.Echo
+	incidentRepo api.IncidentRepository
 }
 
 // Create a new server object
-func NewServer(e *echo.Echo, incidentService api.IncidentService) *Server {
+func NewServer(e *echo.Echo, incidentRepo api.IncidentRepository) *Server {
 	return &Server{
-		echo:            e,
-		incidentService: incidentService,
+		echo:         e,
+		incidentRepo: incidentRepo,
 	}
 }
 

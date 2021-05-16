@@ -38,15 +38,15 @@ export default function Map(props) {
                     <AttributionControl position="topright" />
                     {data.map(incident => {
                         return(
-                            <Marker position={[incident.latitude, incident.longitude]}>
+                            <Marker position={[incident.Latitude, incident.Longitude]}>
                                 <Popup>
-                                    <Link to={`/incident/${incident.eventNo}`}>{incident.eventNo}</Link>
+                                    <Link to={`/incident/${incident.ID}`}>{incident.ID}</Link>
                                     <br />
-                                    {incident.typeDescription}
+                                    {incident.TypeDesc}
                                     <br />
-                                    {new Date(incident.DateTime).toLocaleString()}
+                                    {new Date(incident.StartTimestamp).toLocaleString()}
                                     <br />
-                                    {incident.division}
+                                    {incident.Division}
                                 </Popup>
                             </Marker>
                         )

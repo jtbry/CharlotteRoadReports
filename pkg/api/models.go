@@ -3,20 +3,30 @@ package api
 import "time"
 
 type Incident struct {
-	ID             string  `json:"eventNo"`
-	TypeCode       string  `json:"typeCode"`
-	TypeDesc       string  `json:"typeDescription"`
-	TypeSubCode    string  `json:"typeSubCode"`
-	TypeSubDesc    string  `json:"typeSubDescription"`
-	Division       string  `json:"division"`
-	XCord          int     `json:"xCoordinate"`
-	YCord          int     `json:"yCoordinate"`
-	Lat            float64 `json:"latitude"`
-	Lon            float64 `json:"longitude"`
-	Address        string  `json:"address"`
-	DateTime       time.Time
-	DateTimeString string `json:"eventDateTime,omitempty" gorm:"-"`
-	IsActive       int
+	// EventNo / ID for incident
+	ID string
+	// DateTimestamp the incident started
+	StartTimestamp time.Time
+	// DateTimestamp the incident ended
+	EndTimestamp time.Time
+	// Short version of TypeDesc
+	TypeCode string
+	// Description
+	TypeDesc string
+	// Short version of sub desc
+	SubCode string
+	// How the incident was logged / reported
+	SubDesc string
+	// CMPD divison
+	Division string
+	// Latitude
+	Latitude float64
+	// Longitude
+	Longitude float64
+	// Address
+	Address string
+	// Active status of the incident
+	Active bool
 }
 
 type IncidentFilter struct {
@@ -24,6 +34,6 @@ type IncidentFilter struct {
 	DateRangeStart time.Time
 	// End date for the date range
 	DateRangeEnd time.Time
-	// Whether or not IsActive must be true
-	ActivesOnly int
+	// Whether or not Active must be true
+	ActivesOnly bool
 }

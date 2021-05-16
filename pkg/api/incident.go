@@ -1,55 +1,46 @@
 package api
 
-import "time"
-
-// Contains the required methods for IncidentService
-type IncidentService interface {
-	FindActiveIncidents() []Incident
-	FindIncidentById(eventNo string) Incident
-	FindIncidentsWithFilter(filter IncidentFilter) []Incident
-}
-
 // Allow storage interaction without being aware of the implementation
 type IncidentRepository interface {
 	FindActiveIncidents() []Incident
 	FindIncidentById(eventNo string) Incident
 	FindIncidentsWithFilter(filter IncidentFilter) []Incident
+	UpdateActiveIncidents(actives []string)
+	UpsertIncidentArray(incidents []Incident)
 }
 
-type incidentService struct {
+type incidentRepository struct {
 	storage IncidentRepository
 }
 
-// Create a new IncidentService with the given repository
-func NewIncidentService(repo IncidentRepository) IncidentService {
-	return &incidentService{storage: repo}
+// Create a new IncidentRepository with the given repository/storage object
+// The repository.Storage interface will be implemented as an incident repository
+func NewIncidentRepo(repo IncidentRepository) IncidentRepository {
+	return &incidentRepository{storage: repo}
 }
 
 // Find all active incidents
-func (svc *incidentService) FindActiveIncidents() []Incident {
-	actives := svc.storage.FindActiveIncidents()
-	for i := 0; i < len(actives); i++ {
-		actives[i].DateTimeString = utcToLocalString(actives[i].DateTime)
-		// N/A looks nicer than an empty address
-		if actives[i].Address == "" {
-			actives[i].Address = "N/A"
-		}
-	}
+func (repo *incidentRepository) FindActiveIncidents() []Incident {
+	actives := repo.storage.FindActiveIncidents()
 	return actives
 }
 
-// Convert UTC from storage to human readable Eastern Time
-func utcToLocalString(t time.Time) string {
-	location, _ := time.LoadLocation("America/New_York")
-	return t.In(location).Format("1/2 - 3:04 PM")
-}
-
 // Find an incident by eventNo
-func (svc *incidentService) FindIncidentById(eventNo string) Incident {
-	return svc.storage.FindIncidentById(eventNo)
+func (repo *incidentRepository) FindIncidentById(eventNo string) Incident {
+	return repo.storage.FindIncidentById(eventNo)
 }
 
 // Find all incidents that match the given filters
-func (svc *incidentService) FindIncidentsWithFilter(filter IncidentFilter) []Incident {
-	return svc.storage.FindIncidentsWithFilter(filter)
+func (repo *incidentRepository) FindIncidentsWithFilter(filter IncidentFilter) []Incident {
+	return repo.storage.FindIncidentsWithFilter(filter)
+}
+
+// Update which incidents are active given an array of active IDs
+func (repo *incidentRepository) UpdateActiveIncidents(actives []string) {
+	repo.storage.UpdateActiveIncidents(actives)
+}
+
+// Upsert a list of incidents updating the incident on conflict
+func (repo *incidentRepository) UpsertIncidentArray(incidents []Incident) {
+	repo.storage.UpsertIncidentArray(incidents)
 }

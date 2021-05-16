@@ -2,7 +2,6 @@ package app
 
 import (
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/jtbry/CharlotteRoadReports/pkg/api"
@@ -11,14 +10,14 @@ import (
 
 func (s *Server) handleIncidentsActive() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
-		return ctx.JSON(http.StatusOK, s.incidentService.FindActiveIncidents())
+		return ctx.JSON(http.StatusOK, s.incidentRepo.FindActiveIncidents())
 	}
 }
 
 func (s *Server) handleIncidentById() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		eventNo := ctx.Param("eventNo")
-		incident := s.incidentService.FindIncidentById(eventNo)
+		incident := s.incidentRepo.FindIncidentById(eventNo)
 		if (incident == api.Incident{}) {
 			return ctx.JSON(http.StatusNotFound, echo.Map{"error": eventNo + " not found"})
 		}
@@ -28,24 +27,15 @@ func (s *Server) handleIncidentById() echo.HandlerFunc {
 
 func (s *Server) handleIncidentSearch() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
-		drs, err := time.Parse(time.RFC3339, ctx.QueryParam("dateRangeStart"))
+		filter := api.IncidentFilter{}
+		err := echo.QueryParamsBinder(ctx).
+			Time("dateRangeStart", &filter.DateRangeStart, time.RFC3339).
+			Time("dateRangeEnd", &filter.DateRangeEnd, time.RFC3339).
+			Bool("activesOnly", &filter.ActivesOnly).
+			BindError()
 		if err != nil {
 			return err
 		}
-		dre, err := time.Parse(time.RFC3339, ctx.QueryParam("dateRangeEnd"))
-		if err != nil {
-			return err
-		}
-		ao, err := strconv.Atoi(ctx.QueryParam("activesOnly"))
-		if err != nil {
-			return err
-		}
-
-		filter := api.IncidentFilter{
-			DateRangeStart: drs,
-			DateRangeEnd:   dre,
-			ActivesOnly:    ao,
-		}
-		return ctx.JSON(http.StatusOK, s.incidentService.FindIncidentsWithFilter(filter))
+		return ctx.JSON(http.StatusOK, s.incidentRepo.FindIncidentsWithFilter(filter))
 	}
 }

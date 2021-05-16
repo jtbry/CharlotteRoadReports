@@ -14,35 +14,35 @@ function IncidentInfoCard(props) {
                 <Grid container spacing={3}>
                     <Grid item xs={4}>
                         <Typography variant="h6">Event No.</Typography>
-                        <Typography variant="subtitle1" gutterBottom>{incident.eventNo}</Typography>
+                        <Typography variant="subtitle1" gutterBottom>{incident.ID}</Typography>
                     </Grid>
                     <Grid item xs={4}>
                         <Typography variant="h6">Type Code</Typography>
-                        <Typography variant="subtitle1" gutterBottom>{incident.typeCode}</Typography>
+                        <Typography variant="subtitle1" gutterBottom>{incident.TypeCode}</Typography>
                     </Grid>
                     <Grid item xs={4}>
                         <Typography variant="h6">Division</Typography>
-                        <Typography variant="subtitle1" gutterBottom>{incident.division}</Typography>
+                        <Typography variant="subtitle1" gutterBottom>{incident.Division}</Typography>
                     </Grid>
                     <Grid item xs={4}>
                         <Typography variant="h6">Description</Typography>
-                        <Typography variant="subtitle1" gutterBottom>{incident.typeDescription}</Typography>
+                        <Typography variant="subtitle1" gutterBottom>{incident.TypeDesc}</Typography>
                     </Grid>
                     <Grid item xs={4}>
                         <Typography variant="h6">Address</Typography>
-                        <Typography variant="subtitle1" gutterBottom>{incident.address}</Typography>
+                        <Typography variant="subtitle1" gutterBottom>{incident.Address}</Typography>
                     </Grid>
                     <Grid item xs={4}>
                         <Typography variant="h6">Lat, Lon</Typography>
-                        <Typography variant="subtitle1" gutterBottom>{incident.latitude}<br/>{incident.longitude}</Typography>
+                        <Typography variant="subtitle1" gutterBottom>{incident.Latitude}<br/>{incident.Longitude}</Typography>
                     </Grid>
                     <Grid item xs={4}>
                         <Typography variant="h6">Start Time</Typography>
-                        <Typography variant="subtitle1" gutterBottom>{new Date(incident.DateTime).toLocaleString()}</Typography>
+                        <Typography variant="subtitle1" gutterBottom>{new Date(incident.StartTimestamp).toLocaleString()}</Typography>
                     </Grid>
                     <Grid item xs={4}>
                         <Typography variant="h6">Status</Typography>
-                        <Typography variant="subtitle1" gutterBottom>{incident.IsActive ? "Active" : "Finished"}</Typography>
+                        <Typography variant="subtitle1" gutterBottom>{incident.Active ? "Active" : "Finished"}</Typography>
                     </Grid>
                 </Grid>
             </CardContent>
@@ -65,11 +65,11 @@ function IncidentMap(props) {
     } else {
         const mapHeight = props.width === "sm" ? "300px" : "100%";
         return (
-            <MapContainer style={{height: mapHeight, borderRadius: "4px"}} center={[incident.latitude, incident.longitude]} zoom={15}>
+            <MapContainer style={{height: mapHeight, borderRadius: "4px"}} center={[incident.Latitude, incident.Longitude]} zoom={15}>
                 <TileLayer attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                <Marker position={[incident.latitude, incident.longitude]}>
+                <Marker position={[incident.Latitude, incident.Longitude]}>
                     <Popup>
-                        {incident.eventNo}
+                        {incident.ID}
                     </Popup>
                 </Marker>
             </MapContainer>

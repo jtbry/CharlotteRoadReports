@@ -33,22 +33,22 @@ func run() error {
 		return err
 	}
 
-	// Begin polling, for now this is integrated in the same process as the web server
-	// If hosting limitations change this can be moved to it's own process as a cron job
-	go beginPolling(db)
-
 	// Create storage and Run required migrations
 	storage := repository.NewStorage(db)
 	storage.RunMigrations()
 
+	// Create repositories
+	incidentRepo := api.NewIncidentRepo(storage)
+
 	// Create web server
 	e := echo.New()
 
-	// Create services
-	incidentService := api.NewIncidentService(storage)
+	// Begin polling, for now this is integrated in the same process as the web server
+	// If hosting limitations change this can be moved to it's own process as a cron job
+	go beginPolling(incidentRepo)
 
 	// Create and start server
-	server := app.NewServer(e, incidentService)
+	server := app.NewServer(e, incidentRepo)
 	err = server.Run()
 	if err != nil {
 		return err

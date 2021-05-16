@@ -13,7 +13,6 @@ export default function IncidentDataTable(props) {
             fontSize: 14,
         },
     }))(TableCell);
-
     return(
         <TableContainer component={Paper}>
             <Table>
@@ -27,15 +26,15 @@ export default function IncidentDataTable(props) {
                 </TableHead>
                 <TableBody>
                     {props.data.map(incident => {
-                        const dt = new Date(incident.DateTime);
+                        const start_dt = new Date(incident.StartTimestamp);
                         return(
-                            <TableRow key={incident.eventNo}>
+                            <TableRow key={incident.ID}>
                                 <StyledTableCell>
-                                    <Link to={`/incident/${incident.eventNo}`}>{incident.eventNo}</Link>
+                                    <Link to={`/incident/${incident.ID}`}>{incident.ID}</Link>
                                 </StyledTableCell>
-                                <StyledTableCell>{`${dt.getMonth()+1}/${dt.getDate()}, ${dt.toLocaleTimeString()}`}</StyledTableCell>
-                                <StyledTableCell>{incident.typeDescription}</StyledTableCell>
-                                <StyledTableCell>{incident.address}</StyledTableCell>
+                                <StyledTableCell>{`${start_dt.getMonth()+1}/${start_dt.getDate()}, ${start_dt.toLocaleTimeString()}`}</StyledTableCell>
+                                <StyledTableCell>{incident.TypeDesc}</StyledTableCell>
+                                <StyledTableCell>{incident.Address}</StyledTableCell>
                             </TableRow>
                         );
                     })}

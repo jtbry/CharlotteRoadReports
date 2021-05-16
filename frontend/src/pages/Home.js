@@ -10,9 +10,9 @@ function DivisionDistributionChart(props) {
     const divisionLabels = [];
     const divisionValues = [];
     for(let i = 0; i < props.data.length; ++i) {
-        if(!divisionLabels.includes(props.data[i].division)) {
-            divisionLabels.push(props.data[i].division);
-            divisionValues.push(props.data.filter(incident => incident.division === props.data[i].division).length);
+        if(!divisionLabels.includes(props.data[i].Division)) {
+            divisionLabels.push(props.data[i].Division);
+            divisionValues.push(props.data.filter(incident => incident.Division === props.data[i].Division).length);
         }
     }
 
@@ -60,10 +60,10 @@ function TypeDistributionChart(props) {
     const typeDescMap = {};
     const typeValues = [];
     for(let i = 0; i < props.data.length; ++i) {
-        if(!typeLabels.includes(props.data[i].typeCode)) {
-            typeLabels.push(props.data[i].typeCode);
-            typeValues.push(props.data.filter(incident => incident.typeCode === props.data[i].typeCode).length);
-            typeDescMap[props.data[i].typeCode] = props.data[i].typeDescription;
+        if(!typeLabels.includes(props.data[i].TypeCode)) {
+            typeLabels.push(props.data[i].TypeCode);
+            typeValues.push(props.data.filter(incident => incident.TypeCode === props.data[i].TypeCode).length);
+            typeDescMap[props.data[i].TypeCode] = props.data[i].TypeDesc;
         }
     }
 

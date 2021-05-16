@@ -8,31 +8,98 @@ import (
 	"time"
 
 	"github.com/jtbry/CharlotteRoadReports/pkg/api"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
-// todo: conform file to new structure, call a create incident function from incident service
-// Poll the CMPD Public Data API every 3 minutes for traffic incidents
-func beginPolling(db *gorm.DB) {
+// Begin polling data sources for incidents
+func beginPolling(repo api.IncidentRepository) {
 	for {
-		// Execute in a goroutine to prevent it from blocking timer
+		// Collect data in a separate goroutine to prevent blocking
 		go func() {
-			body, err := fetchCmpdData()
+			incidents, err := pollCmpd()
 			if err != nil {
 				fmt.Println(err)
-			} else {
-				processCmpdData(body, db)
+				return
 			}
+
+			activesLen := len(incidents)
+			activeIDs := make([]string, activesLen)
+			for i := 0; i < activesLen; i++ {
+				activeIDs[i] = incidents[i].ID
+			}
+
+			repo.UpsertIncidentArray(incidents)
+			repo.UpdateActiveIncidents(activeIDs)
 		}()
 
-		// CMPD data updates once every three minutes
+		// CMPD data only updates once every 3min
 		<-time.After(3 * time.Minute)
 	}
 }
 
-// Make GET request to CMPD API and process result
-func fetchCmpdData() ([]byte, error) {
+// Struct to marshal CMPD data into before converting to api.Incident
+type cmpdIncident struct {
+	EventNo             string  `json:"eventNo"`
+	EventDateTime       string  `json:"eventDateTime"`
+	AddedDateTimeString string  `json:"addedDateTimeString"`
+	TypeCode            string  `json:"typeCode"`
+	TypeDescription     string  `json:"typeDescription"`
+	TypeSubCode         string  `json:"typeSubCode"`
+	TypeSubDescription  string  `json:"typeSubDescription"`
+	Division            string  `json:"division"`
+	XCoordinate         int     `json:"xCoordinate"`
+	YCoordinate         int     `json:"yCoordinate"`
+	Latitude            float64 `json:"latitude"`
+	Longitude           float64 `json:"longitude"`
+	Address             string  `json:"address"`
+}
+
+// Poll the CMPD data sources for incidents
+func pollCmpd() ([]api.Incident, error) {
+	cmpdIncidents, err := fetchCmpdIncidents()
+	if err != nil {
+		return nil, err
+	}
+
+	// Do any processing and convert to an api.Incident
+	var incidents []api.Incident
+	for i := 0; i < len(cmpdIncidents); i++ {
+		// Replace missing addresses with N/A
+		if cmpdIncidents[i].Address == "" {
+			cmpdIncidents[i].Address = "N/A"
+		}
+
+		// Convert string to time.Time
+		loc, err := time.LoadLocation("America/New_York")
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		startTimestamp, err := time.ParseInLocation("2006-01-02T15:04:05", cmpdIncidents[i].EventDateTime, loc)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		// Append cmpd incident as an api.Incident
+		incidents = append(incidents, api.Incident{
+			ID:             cmpdIncidents[i].EventNo,
+			StartTimestamp: startTimestamp,
+			TypeCode:       cmpdIncidents[i].TypeCode,
+			TypeDesc:       cmpdIncidents[i].TypeDescription,
+			SubCode:        cmpdIncidents[i].TypeSubCode,
+			SubDesc:        cmpdIncidents[i].TypeSubDescription,
+			Division:       cmpdIncidents[i].Division,
+			Latitude:       cmpdIncidents[i].Latitude,
+			Longitude:      cmpdIncidents[i].Longitude,
+			Address:        cmpdIncidents[i].Address,
+			Active:         true,
+		})
+	}
+	return incidents, nil
+}
+
+func fetchCmpdIncidents() ([]cmpdIncident, error) {
 	url := "https://cmpdinfo.charlottenc.gov/api/v2.1/traffic"
 	method := "GET"
 
@@ -54,55 +121,10 @@ func fetchCmpdData() ([]byte, error) {
 		return nil, err
 	}
 
-	return body, nil
-}
-
-// Process data fetched from the CMPD API
-func processCmpdData(data []byte, db *gorm.DB) {
-	// Unmarshal data
-	activeIncidents := make([]api.Incident, 0)
-	err := json.Unmarshal(data, &activeIncidents)
+	incidents := make([]cmpdIncident, 0)
+	err = json.Unmarshal(body, &incidents)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
-
-	// Fix incident values, get active incident IDs
-	activeIDs := make([]string, len(activeIncidents))
-	for i := 0; i < len(activeIncidents); i++ {
-		activeIDs[i] = activeIncidents[i].ID
-		// todo: could this be moved to a GORM hook? (BeforeCreate)
-		activeIncidents[i].DateTime, err = parseIso8601Local(activeIncidents[i].DateTimeString)
-		if err != nil {
-			fmt.Printf("Unable to parse %s to time.Time\n", activeIncidents[i].DateTimeString)
-		}
-		activeIncidents[i].IsActive = 1
-	}
-
-	if len(activeIDs) <= 0 || len(activeIncidents) <= 0 {
-		// Don't execute if there are no active events.
-		// Prevents verbose error from GORM
-		return
-	}
-
-	// Upsert to database
-	db.Clauses(clause.OnConflict{
-		UpdateAll: true,
-	}).Create(&activeIncidents)
-
-	// Update which incidents are active
-	db.Table("incidents").Not(map[string]interface{}{"id": activeIDs}).Update("is_active", 0)
-}
-
-// Parse an ISO8601 Local (Eastern Time) to time.Time
-func parseIso8601Local(str string) (time.Time, error) {
-	location, err := time.LoadLocation("America/New_York")
-	if err != nil {
-		return time.Time{}, err
-	}
-
-	t, err := time.ParseInLocation("2006-01-02T15:04:05", str, location)
-	if err != nil {
-		return time.Time{}, err
-	}
-	return t, nil
+	return incidents, nil
 }
