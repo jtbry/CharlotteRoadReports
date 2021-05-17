@@ -49,7 +49,7 @@ func (s *pgsql) FindIncidentById(eventNo string) api.Incident {
 func (s *pgsql) FindIncidentsWithFilter(filter api.IncidentFilter) []api.Incident {
 	query := s.db.Where("start_timestamp >= ? AND start_timestamp <= ? AND active = ?", filter.DateRangeStart, filter.DateRangeEnd, filter.ActivesOnly)
 	results := make([]api.Incident, 0)
-	query.Find(&results)
+	query.Order("start_timestamp").Find(&results)
 	return results
 }
 
