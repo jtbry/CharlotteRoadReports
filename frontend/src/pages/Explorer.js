@@ -18,9 +18,8 @@ function IsActiveFilter(props) {
             <Typography variant="subtitle1">Active</Typography>
             <Switch
                 checked={checked}
-                onChange={() => { setChecked(!checked); props.update( (!checked) ? 1 : 0, "activesOnly") }}
+                onChange={() => { setChecked(!checked); props.update(!checked, "activesOnly") }}
                 color="primary"
-                name="checkedB"
                 inputProps={{ 'aria-label': 'Show active incidents only' }}
             />
         </Grid>
@@ -68,7 +67,7 @@ export default function Explorer() {
             start: moment().startOf("day"),
             end: moment().endOf("day")
         },
-        activesOnly: 0
+        activesOnly: false
     });
     const mergeFilters = (value, jsonPath) => {
         let updatedFilter = {};
