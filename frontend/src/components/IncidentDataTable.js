@@ -90,6 +90,7 @@ export default function IncidentDataTable(props) {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     };
+    if(page >= (props.data.length / rowsPerPage)) setPage(0);
 
     const StyledTableCell = withStyles((theme) => ({
         head: {
