@@ -1,8 +1,19 @@
 import React from 'react';
-import { Paper, TableContainer, Table, TableCell, withStyles, TableHead, TableRow, TableBody } from '@material-ui/core';
+import { Paper, TableContainer, Table, TableCell, withStyles, TableHead, TableRow, TableBody, TablePagination } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 
 export default function IncidentDataTable(props) {
+    const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const [page, setPage] = React.useState(0);
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+      };
+    
+      const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+      };
+
     const StyledTableCell = withStyles((theme) => ({
         head: {
             backgroundColor: theme.palette.primary.main,
@@ -14,7 +25,8 @@ export default function IncidentDataTable(props) {
         },
     }))(TableCell);
     return(
-        <TableContainer component={Paper}>
+        <Paper>
+        <TableContainer>
             <Table>
                 <TableHead>
                     <TableRow>
@@ -25,7 +37,7 @@ export default function IncidentDataTable(props) {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {props.data.map(incident => {
+                    {props.data.slice(page * rowsPerPage, (page+1) * rowsPerPage).map(incident => {
                         const start_dt = new Date(incident.StartTimestamp);
                         return(
                             <TableRow key={incident.ID}>
@@ -41,5 +53,15 @@ export default function IncidentDataTable(props) {
                 </TableBody>
             </Table>
         </TableContainer>
+        <TablePagination
+            rowsPerPageOptions={[10, 25]}
+            component="div"
+            count={props.data.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onChangeRowsPerPage={handleChangeRowsPerPage}
+            onChangePage={handleChangePage}
+        />
+        </Paper>
     );
 }
