@@ -93,7 +93,7 @@ export default function Map(props) {
                                 <LayerGroup>
                                 {layer.data.map(incident => {
                                     return(
-                                        <Marker position={[incident.Latitude, incident.Longitude]} icon={layer.icon}>
+                                        <Marker key={incident.ID} position={[incident.Latitude, incident.Longitude]} icon={layer.icon}>
                                             <Popup>
                                                 <Link to={`/incident/${incident.ID}`}>{incident.ID}</Link>
                                                 <br />
