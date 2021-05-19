@@ -41,7 +41,7 @@ func beginPolling(repo api.IncidentRepository) {
 	}
 }
 
-// Struct to marshal CMPD data into before converting to api.Incident
+// Struct to unmarshal CMPD data into before converting to api.Incident
 type cmpdIncident struct {
 	EventNo             string  `json:"eventNo"`
 	EventDateTime       string  `json:"eventDateTime"`
@@ -104,6 +104,7 @@ func pollCmpd() ([]api.Incident, error) {
 	return incidents, nil
 }
 
+// Make HTTP request to CMPD api
 func fetchCmpdIncidents() ([]cmpdIncident, error) {
 	url := "https://cmpdinfo.charlottenc.gov/api/v2.1/traffic"
 	method := "GET"
