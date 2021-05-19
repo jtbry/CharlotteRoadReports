@@ -47,7 +47,10 @@ func (s *pgsql) FindIncidentById(eventNo string) api.Incident {
 
 // Find all incidents that match the given filters
 func (s *pgsql) FindIncidentsWithFilter(filter api.IncidentFilter) []api.Incident {
-	query := s.db.Where("start_timestamp >= ? AND start_timestamp <= ? AND active = ?", filter.DateRangeStart, filter.DateRangeEnd, filter.ActivesOnly)
+	query := s.db.Where("start_timestamp >= ? AND start_timestamp <= ?", filter.DateRangeStart, filter.DateRangeEnd, filter.ActivesOnly)
+	if filter.ActivesOnly {
+		query = query.Where("active = true")
+	}
 	results := make([]api.Incident, 0)
 	query.Order("start_timestamp").Find(&results)
 	return results
