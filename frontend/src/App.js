@@ -7,6 +7,7 @@ import Home from './pages/Home'
 import Incident from './pages/Incident'
 import Map from './pages/Map'
 import Explorer from './pages/Explorer'
+import Statistics from './pages/Statistics'
 
 const theme = createMuiTheme({
   palette: {
@@ -45,7 +46,7 @@ function Nav (props) {
             <Tab wrapped component={Link} to='/' value='/' label='Active Incidents' />
             <Tab wrapped component={Link} to='/map' value='/map' label='Active Map' />
             <Tab wrapped component={Link} to='/explorer' value='/explorer' label='Incident Explorer' />
-            {/* <Tab wrapped component={Link} to='/stats' value='/stats' label='Statistics Dashboard' /> */}
+            <Tab wrapped component={Link} to='/stats' value='/stats' label='Statistics Dashboard' />
           </Tabs>
         </Container>
       </AppBar>
@@ -78,6 +79,10 @@ export default function App (props) {
             <Explorer />
           </Route>
 
+          <Route exact path='/stats'>
+            <Statistics />
+          </Route>
+
           <Route path='*'>
             <Container style={{ textAlign: 'center', padding: '1rem' }}>
               <ErrorSvg style={{ marginTop: '1rem' }} width='35%' height='35%' />
@@ -88,12 +93,12 @@ export default function App (props) {
           </Route>
         </Switch>
 
-        {/* Footer, don't render on the map page */}
+        {/* Footer, shouldn't render on the map page */}
         <Switch>
           <Route path='/map' />
           <Route path='*'>
             <div style={{ textAlign: 'center', margin: '1rem', overflow: 'hidden' }}>
-              <Typography variant='subtitle1'>CharlotteRoadReports, contribute on <a href='https://github.com/jtbry/CharlotteRoadReports' rel='noreferrer' target='_blank'>Github</a></Typography>
+              <Typography variant='body1' color='textSecondary'>CharlotteRoadReports, contribute on <a href='https://github.com/jtbry/CharlotteRoadReports' rel='noreferrer' target='_blank'>Github</a></Typography>
             </div>
           </Route>
         </Switch>
