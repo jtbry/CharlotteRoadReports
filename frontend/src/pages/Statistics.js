@@ -196,7 +196,8 @@ function GetAverageIncidentDuration (data) {
   let totalDuration = 0
   for (let i = 0; i < data.length; i++) {
     // Don't calculate incidents that don't have an end time
-    if (data[i].EndTimestamp === '0000-12-31T19:00:00-05:00') continue
+    const year = new Date(data[i].EndTimestamp).getUTCFullYear()
+    if (year === 1970 || year === 1) continue
     totalDuration += Math.abs(new Date(data[i].EndTimestamp) - new Date(data[i].StartTimestamp)) / 36e5
   }
   const avgDuration = totalDuration / data.length
