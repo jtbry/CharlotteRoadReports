@@ -109,13 +109,7 @@ function DisplayStatCards (props) {
   const daysDuration = Math.ceil((props.drend - props.drstart) / (1000 * 3600 * 24))
   if (daysDuration <= 1) {
     intervalStr = 'hour'
-  } else if (daysDuration <= 14) {
-    intervalStr = 'day'
-  } else if (daysDuration <= 40) {
-    intervalStr = 'week'
-  } else {
-    intervalStr = 'month'
-  }
+  } else intervalStr = 'day'
 
   return (
     <>
@@ -126,7 +120,7 @@ function DisplayStatCards (props) {
 
       <StatCard>
         <Typography variant='subtitle1'>Average incidents per {intervalStr}</Typography>
-        <Typography variant='h6'>{GetAverageIncidentPerTimeInterval(props.data, intervalStr, props.drstart)}</Typography>
+        <Typography variant='h6'>{GetAverageIncidentPerTimeInterval(props.data, intervalStr)}</Typography>
       </StatCard>
 
       <StatCard>
@@ -163,20 +157,13 @@ function StatCard (props) {
 }
 
 // Calculate average incidents per a given time interval
-function GetAverageIncidentPerTimeInterval (data, interval, startRange) {
+function GetAverageIncidentPerTimeInterval (data, interval) {
   const intervalsAndOccurences = {}
   for (let i = 0; i < data.length; i++) {
     const start = new Date(data[i].StartTimestamp)
-    const daysPassed = Math.abs(Math.ceil((startRange._d - start) / (1000 * 3600 * 24)))
     let intervalKey
     if (interval === 'hour') return Math.round(data.length / new Date().getHours())
-    else if (interval === 'day') intervalKey = `${start.getMonth()}/${start.getDate()}`
-    // todo: we may want to make these more accurate
-    // if someone selects within a range where a large number months/weeks don't
-    // have data - it will make the average appear inaccurate because it will show the
-    // average only of those weeks/months that do have data
-    else if (interval === 'week') intervalKey = Math.floor(daysPassed / 7)
-    else if (interval === 'month') intervalKey = `${start.getFullYear()}/${start.getMonth()}`
+    else intervalKey = `${start.getMonth()}/${start.getDate()}`
 
     if (intervalsAndOccurences[intervalKey]) intervalsAndOccurences[intervalKey]++
     else intervalsAndOccurences[intervalKey] = 1
@@ -238,6 +225,7 @@ function DisplayGraphMaker (props) {
         <FormControl variant='standard' style={{ minWidth: 120 }}>
           <Select value={graphMetric} onChange={(e) => setGraphMetric(e.target.value)}>
             <MenuItem value='time'>Time Distributon</MenuItem>
+            <MenuItem value='day'>Day Distributon</MenuItem>
             <MenuItem value='TypeCode'>Type Distributon</MenuItem>
             <MenuItem value='SubCode'>Sub Code Distributon</MenuItem>
             <MenuItem value='Division'>Division Distributon</MenuItem>
@@ -267,8 +255,8 @@ function DisplayGraphMaker (props) {
 function CreateGraph (props) {
   // todo: average duration distribution graph
   const data = props.data
-  const dataLabels = []
-  const dataValues = []
+  let dataLabels = []
+  let dataValues = []
   if (props.metric === 'time') {
     const timesAndValues = {}
     for (let i = 0; i < data.length; i++) {
@@ -282,6 +270,13 @@ function CreateGraph (props) {
       const hour = key === '0' ? 12 : (key > 12 ? key - 12 : key)
       dataLabels.push(`${hour}${period}`)
       dataValues.push(timesAndValues[key])
+    }
+  } else if (props.metric === 'day') {
+    dataLabels = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    dataValues = [0, 0, 0, 0, 0, 0, 0]
+    for (let i = 0; i < data.length; i++) {
+      const day = new Date(data[i].StartTimestamp).getDay()
+      dataValues[day]++
     }
   } else {
     for (let i = 0; i < data.length; i++) {
