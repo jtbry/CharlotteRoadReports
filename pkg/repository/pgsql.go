@@ -4,31 +4,41 @@ import (
 	"time"
 
 	"github.com/jtbry/CharlotteRoadReports/pkg/api"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
-
-type Storage interface {
-	RunMigrations()
-	FindActiveIncidents() []api.Incident
-	FindIncidentById(eventNo string) api.Incident
-	FindIncidentsWithFilter(filter api.IncidentFilter) []api.Incident
-	UpdateActiveIncidents(actives []string)
-	UpsertIncidentArray(incidents []api.Incident)
-}
 
 type pgsql struct {
 	db *gorm.DB
 }
 
 // Create a new storage object from gorm.DB
-func NewStorage(db *gorm.DB) Storage {
-	return &pgsql{db: db}
+func NewPgsqlStorage(dsn string, shouldMigrate bool) (api.IncidentRepository, error) {
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		PrepareStmt: true,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	s := &pgsql{db: db}
+	if shouldMigrate {
+		err = runPgsqlMigrations(s)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return s, nil
 }
 
 // Run all required migrations for this storage
-func (s *pgsql) RunMigrations() {
-	s.db.AutoMigrate(&api.Incident{})
+func runPgsqlMigrations(s *pgsql) error {
+	err := s.db.AutoMigrate(&api.Incident{})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Find all active incidents

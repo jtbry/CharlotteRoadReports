@@ -21,9 +21,12 @@ Requirements
 You can either set environment variables traditionally through your OS or by creating a `.env` file in the root directory. See the `example.env` file to get an idea of what environment variables are needed. If you are planning on developing the front-end, make sure to change the `proxy` field in `./frontend/package.json` to match the port in your environment variable.
 
 ### 3. Run the project
-If you are running the project in a production environment or you don't plan to change/develop anything on the frontend, you can run `npm run build` to build the React frontend. After the frontend is built you can then run `go build ./cmd/cltrr` and then run the resulting binary which should be named `cltrr`
+There are three possible binaries from this project.
+- **Combined**: run the web app and scraper in the same process
+- **Scrape**: run just the incident scraper
+- **Web**: run the just the web app
 
-If you wish to change or develop the front-end, you will serve the frontend with react-scripts (make sure you ran `npm install` if you need to) and you can run the backend using the provided VSCode `launch.json` (debug) or by running `go run ./cmd/cltrr`
+If you build and run an option that runs the web app you need to make sure you've built the ReactJS front-end with `npm run build` first or that you are running the front-end in development mode with react-scripts with a proxy. You also need to make sure you provide a `PORT` environment variable when running the web app.
 
 <br />
 

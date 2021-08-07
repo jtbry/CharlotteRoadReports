@@ -10,8 +10,6 @@ import (
 	"github.com/jtbry/CharlotteRoadReports/pkg/app"
 	"github.com/jtbry/CharlotteRoadReports/pkg/repository"
 	"github.com/labstack/echo/v4"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 func main() {
@@ -27,25 +25,20 @@ func run() error {
 		return err
 	}
 
-	// Connect database
-	db, err := newDatabase(os.Getenv("DATABASE_URL"))
+	// Create pgsql storage / db connection
+	pgsql, err := repository.NewPgsqlStorage(os.Getenv("DATABASE_URL"), true)
 	if err != nil {
 		return err
 	}
 
-	// Create storage and Run required migrations
-	storage := repository.NewStorage(db)
-	storage.RunMigrations()
-
-	// Create repositories
-	incidentRepo := api.NewIncidentRepo(storage)
+	// Create repository from pgsql db
+	incidentRepo := api.NewIncidentRepo(pgsql)
 
 	// Create web server
 	e := echo.New()
 
-	// Begin polling, for now this is integrated in the same process as the web server
-	// If hosting limitations change this can be moved to it's own process as a cron job
-	go beginPolling(incidentRepo)
+	// Begin polling
+	go api.BeginPolling(incidentRepo)
 
 	// Create and start server
 	server := app.NewServer(e, incidentRepo)
@@ -77,12 +70,4 @@ func checkEnvironment() error {
 		return errors.New("$PORT must be set")
 	}
 	return nil
-}
-
-func newDatabase(dsn string) (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		return nil, err
-	}
-	return db, nil
 }

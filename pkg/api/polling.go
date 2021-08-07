@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"encoding/json"
@@ -6,12 +6,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
-
-	"github.com/jtbry/CharlotteRoadReports/pkg/api"
 )
 
 // Begin polling data sources for incidents
-func beginPolling(repo api.IncidentRepository) {
+func BeginPolling(repo IncidentRepository) {
 	for {
 		// Collect data in a separate goroutine to prevent blocking
 		go func() {
@@ -34,6 +32,7 @@ func beginPolling(repo api.IncidentRepository) {
 			}
 			repo.UpsertIncidentArray(incidents)
 			repo.UpdateActiveIncidents(activeIDs)
+			fmt.Printf("Polled %d active incidents at %s\n", activesLen, time.Now().UTC().Format(time.ANSIC))
 		}()
 
 		// CMPD data only updates once every 3min
@@ -41,7 +40,7 @@ func beginPolling(repo api.IncidentRepository) {
 	}
 }
 
-// Struct to unmarshal CMPD data into before converting to api.Incident
+// Struct to unmarshal CMPD data into before converting to Incident
 type cmpdIncident struct {
 	EventNo             string  `json:"eventNo"`
 	EventDateTime       string  `json:"eventDateTime"`
@@ -59,14 +58,14 @@ type cmpdIncident struct {
 }
 
 // Poll the CMPD data sources for incidents
-func pollCmpd() ([]api.Incident, error) {
+func pollCmpd() ([]Incident, error) {
 	cmpdIncidents, err := fetchCmpdIncidents()
 	if err != nil {
 		return nil, err
 	}
 
-	// Do any processing and convert to an api.Incident
-	var incidents []api.Incident
+	// Do any processing and convert to an Incident
+	var incidents []Incident
 	for i := 0; i < len(cmpdIncidents); i++ {
 		// Replace missing addresses with N/A
 		if cmpdIncidents[i].Address == "" {
@@ -86,8 +85,8 @@ func pollCmpd() ([]api.Incident, error) {
 			continue
 		}
 
-		// Append cmpd incident as an api.Incident
-		incidents = append(incidents, api.Incident{
+		// Append cmpd incident as an Incident
+		incidents = append(incidents, Incident{
 			ID:             cmpdIncidents[i].EventNo,
 			StartTimestamp: startTimestamp,
 			TypeCode:       cmpdIncidents[i].TypeCode,
