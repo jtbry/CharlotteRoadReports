@@ -39,11 +39,11 @@ function ExportDialog (props) {
     document.body.appendChild(link)
     link.click()
     window.URL.revokeObjectURL(outputUrl)
-    props.closeExport()
+    props.handleCloseExport()
   }
 
   return (
-    <Dialog fullWidth open={props.openExport} onClose={props.closeExport} aria-labelledby='export-data-dialog'>
+    <Dialog fullWidth open={props.openExport} onClose={props.handleCloseExport} aria-labelledby='export-data-dialog'>
       <DialogTitle id='form-dialog-title'>Export Data</DialogTitle>
       <DialogContent style={{ overflowY: 'hidden' }}>
         <Grid container spacing={3}>
@@ -68,7 +68,7 @@ function ExportDialog (props) {
         </p>
       </DialogContent>
       <DialogActions>
-        <Button onClick={props.closeExport} color='secondary'>
+        <Button onClick={props.handleCloseExport} color='secondary'>
           Cancel
         </Button>
         <Button onClick={exportData} color='primary'>
@@ -105,7 +105,7 @@ export default function IncidentDataTable (props) {
   }))(TableCell)
   return (
     <Paper>
-      <ExportDialog openExport={openExport} closeExport={() => setOpenExport(false)} exportInfo={{ data: props.data, page: page, rowsPerPage: rowsPerPage }} />
+      <ExportDialog openExport={openExport} handleCloseExport={() => setOpenExport(false)} exportInfo={{ data: props.data, page: page, rowsPerPage: rowsPerPage }} />
       <TableContainer>
         <Table>
           <TableHead>
@@ -118,13 +118,13 @@ export default function IncidentDataTable (props) {
           </TableHead>
           <TableBody>
             {props.data.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map(incident => {
-              const start_dt = new Date(incident.StartTimestamp)
+              const startDt = new Date(incident.StartTimestamp)
               return (
                 <TableRow key={incident.ID}>
                   <StyledTableCell>
-                      <Link to={`/incident/${incident.ID}`}>{incident.ID}</Link>
-                    </StyledTableCell>
-                  <StyledTableCell>{`${start_dt.getMonth() + 1}/${start_dt.getDate()}, ${start_dt.toLocaleTimeString()}`}</StyledTableCell>
+                    <Link to={`/incident/${incident.ID}`}>{incident.ID}</Link>
+                  </StyledTableCell>
+                  <StyledTableCell>{`${startDt.getMonth() + 1}/${startDt.getDate()}, ${startDt.toLocaleTimeString()}`}</StyledTableCell>
                   <StyledTableCell>{incident.TypeDesc}</StyledTableCell>
                   <StyledTableCell>{incident.Address}</StyledTableCell>
                 </TableRow>
