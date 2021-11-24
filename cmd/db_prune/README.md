@@ -1,0 +1,2 @@
+# db_prune
+This executable will prune the database to 9,000 rows when necessary. This has been added to the project because the demo is run on the Heroku PGSQL free tier so it is limited to 10k rows and I am tired of having to manually trim them.
