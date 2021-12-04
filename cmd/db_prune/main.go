@@ -12,6 +12,8 @@ import (
 	"cloud.google.com/go/storage"
 	"github.com/joho/godotenv"
 	"github.com/jtbry/CharlotteRoadReports/pkg/api"
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"google.golang.org/api/option"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -40,12 +42,12 @@ func main() {
 		err := storeIncidentBackup(trash)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", err)
-			os.Exit(1)
+			notifyFatalError(err)
 		} else {
 			tx := db.Delete(&trash)
 			if tx.Error != nil {
 				fmt.Fprintf(os.Stderr, "%s\n", tx.Error)
-				os.Exit(1)
+				notifyFatalError(err)
 			} else {
 				fmt.Printf("%d rows deleted.\n", tx.RowsAffected)
 			}
@@ -53,6 +55,11 @@ func main() {
 	} else {
 		fmt.Printf("Only %d rows\n", rowCount)
 	}
+}
+
+func notifyFatalError(err error) {
+	notifyAdmin(fmt.Sprintf("Fatal Error:\n%s\n", err))
+	os.Exit(1)
 }
 
 func storeIncidentBackup(incidents []api.Incident) error {
@@ -91,6 +98,7 @@ func storeIncidentBackup(incidents []api.Incident) error {
 		return err
 	}
 
+	notifyAdmin(fmt.Sprintf("Notice:\n%d rows have been moved to the cloud.\nThey are under an object named %s\n", len(incidents), object.ObjectName()))
 	return nil
 }
 
@@ -117,4 +125,50 @@ func writeIncidentsAsCsv(writer io.Writer, incidents []api.Incident) error {
 		fmt.Fprintf(writer, "\n")
 	}
 	return nil
+}
+
+func notifyAdmin(content string) {
+	adminEmail := os.Getenv("ADMIN_NOTIF_EMAIL")
+	if adminEmail == "" {
+		fmt.Fprint(os.Stderr, "No ADMIN_NOTIF_EMAIL set\n")
+		return
+	}
+	fromEmail := os.Getenv("SENDGRID_FROM_EMAIL")
+	if fromEmail == "" {
+		fmt.Fprint(os.Stderr, "No SENDGRID_FROM_EMAIL set\n")
+		return
+	}
+
+	adminNotifTemplate := os.Getenv("ADMIN_NOTIF_TEMPLATE")
+	if adminNotifTemplate == "" {
+		from := mail.NewEmail("cltrr-admin", fromEmail)
+		subject := "CLTRR Admin Notification"
+		to := mail.NewEmail("Admin User", adminEmail)
+		message := mail.NewSingleEmail(from, subject, to, content, content)
+		client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
+		response, err := client.Send(message)
+		if err != nil && response.StatusCode != 202 {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			return
+		}
+	} else {
+		m := mail.NewV3Mail()
+		m.SetFrom(mail.NewEmail("cltrr-admin", fromEmail))
+		m.SetTemplateID(adminNotifTemplate)
+
+		p := mail.NewPersonalization()
+		p.AddTos(mail.NewEmail("Admin User", adminEmail))
+		p.SetDynamicTemplateData("message", content)
+
+		m.AddPersonalizations(p)
+		request := sendgrid.GetRequest(os.Getenv("SENDGRID_API_KEY"), "/v3/mail/send", "https://api.sendgrid.com")
+		request.Method = "POST"
+		var Body = mail.GetRequestBody(m)
+		request.Body = Body
+		response, err := sendgrid.API(request)
+		if err != nil && response.StatusCode != 202 {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+			return
+		}
+	}
 }

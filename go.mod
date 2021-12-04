@@ -9,6 +9,8 @@ require (
 	github.com/labstack/echo/v4 v4.2.2
 	github.com/newrelic/go-agent/v3 v3.11.0
 	github.com/newrelic/go-agent/v3/integrations/nrecho-v4 v1.0.0
+	github.com/sendgrid/rest v2.6.5+incompatible // indirect
+	github.com/sendgrid/sendgrid-go v3.10.3+incompatible // indirect
 	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect
 	google.golang.org/api v0.58.0 // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
