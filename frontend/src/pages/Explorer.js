@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { AppBar, Container, Grid, Paper, Typography, Switch } from '@material-ui/core'
+import { AppBar, Container, Grid, Paper, Typography, Switch, TextField } from '@material-ui/core'
 import moment from 'moment'
 import 'react-dates/initialize'
 import { SingleDatePicker } from 'react-dates'
@@ -10,6 +10,22 @@ import axios from 'axios'
 import Loading from '../components/Loading'
 import { ReactComponent as ErrorSvg } from '../assets/undraw_error.svg'
 import IncidentDataTable from '../components/IncidentDataTable'
+
+function AddressSearchFilter (props) {
+  const [typingTimeout, setTypingTimeout] = React.useState(undefined)
+  const handleChange = (event) => {
+    if (typingTimeout) clearInterval(typingTimeout)
+    setTypingTimeout(setTimeout(changeSearchAddr.bind(null, event.target.value), 650))
+  }
+  const changeSearchAddr = (value) => {
+    props.update(value, "addressSearch")
+  }
+  return (
+    <Grid item>
+      <TextField label="Address Search" variant="outlined" onChange={handleChange} />
+    </Grid>
+  )
+}
 
 function IsActiveFilter (props) {
   const [checked, setChecked] = React.useState(props.default)
@@ -66,7 +82,8 @@ export default function Explorer () {
       start: moment().startOf('day'),
       end: moment().endOf('day')
     },
-    activesOnly: false
+    activesOnly: false,
+    addressSearch: ""
   })
   const mergeFilters = (value, jsonPath) => {
     const updatedFilter = {}
@@ -80,7 +97,8 @@ export default function Explorer () {
     const filterParams = {
       dateRangeStart: filters.dateRange.start.format(RFC_3339),
       dateRangeEnd: filters.dateRange.end.format(RFC_3339),
-      activesOnly: filters.activesOnly
+      activesOnly: filters.activesOnly,
+      addressSearch: filters.addressSearch
     }
     axios.get('/api/incidents/search', { params: filterParams })
       .then(response => {
@@ -127,6 +145,7 @@ export default function Explorer () {
           <Grid container spacing={3} style={{ margin: '.6rem' }}>
             <DateRangeFilter update={mergeFilters} default={filters.dateRange} />
             <IsActiveFilter update={mergeFilters} default={filters.activesOnly} />
+            <AddressSearchFilter update={mergeFilters} default={filters.addressSearch} />
           </Grid>
         </Paper>
       </Container>

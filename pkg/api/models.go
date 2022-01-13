@@ -36,4 +36,6 @@ type IncidentFilter struct {
 	DateRangeEnd time.Time
 	// Whether or not Active must be true
 	ActivesOnly bool
+	// Address to use LIKE statement on
+	AddressSearch string
 }

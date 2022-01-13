@@ -61,6 +61,9 @@ func (s *pgsql) FindIncidentsWithFilter(filter api.IncidentFilter) []api.Inciden
 	if filter.ActivesOnly {
 		query = query.Where("active = true")
 	}
+	if filter.AddressSearch != "" {
+		query = query.Where("address ILIKE ?", "%"+filter.AddressSearch+"%")
+	}
 	results := make([]api.Incident, 0)
 	query.Order("start_timestamp").Find(&results)
 	return results

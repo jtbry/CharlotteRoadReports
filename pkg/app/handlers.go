@@ -32,6 +32,7 @@ func (s *Server) handleIncidentSearch() echo.HandlerFunc {
 			Time("dateRangeStart", &filter.DateRangeStart, time.RFC3339).
 			Time("dateRangeEnd", &filter.DateRangeEnd, time.RFC3339).
 			Bool("activesOnly", &filter.ActivesOnly).
+			String("addressSearch", &filter.AddressSearch).
 			BindError()
 		if err != nil {
 			return err
