@@ -31,9 +31,6 @@ func run() error {
 		return err
 	}
 
-	// Create repository from pgsql db
-	incidentRepo := api.NewIncidentRepo(pgsql)
-
-	api.BeginPolling(incidentRepo)
+	api.BeginPolling(pgsql)
 	return nil
 }

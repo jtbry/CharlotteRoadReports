@@ -31,17 +31,14 @@ func run() error {
 		return err
 	}
 
-	// Create repository from pgsql db
-	incidentRepo := api.NewIncidentRepo(pgsql)
-
 	// Create web server
 	e := echo.New()
 
 	// Begin polling
-	go api.BeginPolling(incidentRepo)
+	go api.BeginPolling(pgsql)
 
 	// Create and start server
-	server := app.NewServer(e, incidentRepo)
+	server := app.NewServer(e, pgsql)
 	err = server.Run()
 	if err != nil {
 		return err

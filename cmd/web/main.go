@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/jtbry/CharlotteRoadReports/pkg/api"
 	"github.com/jtbry/CharlotteRoadReports/pkg/app"
 	"github.com/jtbry/CharlotteRoadReports/pkg/repository"
 	"github.com/labstack/echo/v4"
@@ -31,14 +30,11 @@ func run() error {
 		return err
 	}
 
-	// Create repository from pgsql db
-	incidentRepo := api.NewIncidentRepo(pgsql)
-
 	// Create web server
 	e := echo.New()
 
 	// Create and start server
-	server := app.NewServer(e, incidentRepo)
+	server := app.NewServer(e, pgsql)
 	err = server.Run()
 	if err != nil {
 		return err
