@@ -1,0 +1,5 @@
+runtime: go116
+main: ./cmd/web
+
+includes:
+  - prod_env.yaml
