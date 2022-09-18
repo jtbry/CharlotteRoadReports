@@ -31,6 +31,9 @@ func run() error {
 		return err
 	}
 
-	api.BeginPolling(pgsql)
+	// Only use in-app scheduling when needed
+	shouldSchedule := os.Getenv("SCHEDULE") == "true"
+	api.BeginPolling(pgsql, shouldSchedule)
+
 	return nil
 }

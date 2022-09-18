@@ -9,34 +9,40 @@ import (
 )
 
 // Begin polling data sources for incidents
-func BeginPolling(repo IncidentRepository) {
-	for {
-		// Collect data in a separate goroutine to prevent blocking
-		go func() {
-			incidents, err := pollCmpd()
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
+func BeginPolling(repo IncidentRepository, shouldSchedule bool) {
+	fetch := func() {
+		incidents, err := pollCmpd()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 
-			activesLen := len(incidents)
-			activeIDs := make([]string, activesLen)
-			for i := 0; i < activesLen; i++ {
-				activeIDs[i] = incidents[i].ID
-			}
+		activesLen := len(incidents)
+		activeIDs := make([]string, activesLen)
+		for i := 0; i < activesLen; i++ {
+			activeIDs[i] = incidents[i].ID
+		}
 
-			if activesLen <= 0 {
-				// Don't execute if there are no active events
-				// Prevents a verbose error from GORM
-				return
-			}
-			repo.UpsertIncidentArray(incidents)
-			repo.UpdateActiveIncidents(activeIDs)
-			fmt.Printf("Polled %d active incidents at %s\n", activesLen, time.Now().UTC().Format(time.ANSIC))
-		}()
+		if activesLen <= 0 {
+			// Don't execute if there are no active events
+			// Prevents a verbose error from GORM
+			return
+		}
+		repo.UpsertIncidentArray(incidents)
+		repo.UpdateActiveIncidents(activeIDs)
+		fmt.Printf("Polled %d active incidents at %s\n", activesLen, time.Now().UTC().Format(time.ANSIC))
+	}
 
-		// CMPD data only updates once every 3min
-		<-time.After(3 * time.Minute)
+	if shouldSchedule {
+		for {
+			// Collect data in a separate goroutine to prevent blocking
+			go fetch()
+
+			// CMPD data only updates once every 3min
+			<-time.After(3 * time.Minute)
+		}
+	} else {
+		fetch()
 	}
 }
 
