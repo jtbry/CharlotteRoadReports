@@ -1,11 +1,11 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
+	"time"
 
-	"github.com/joho/godotenv"
+	"github.com/jtbry/CharlotteRoadReports/internal/app"
 	"github.com/jtbry/CharlotteRoadReports/pkg/api"
 	"github.com/jtbry/CharlotteRoadReports/pkg/repository"
 )
@@ -18,22 +18,49 @@ func main() {
 }
 
 func run() error {
-	// Load env
-	godotenv.Load()
-	dsn := os.Getenv("DATABASE_URL")
-	if dsn == "" {
-		return errors.New("no DSN provided")
-	}
-
-	// Create pgsql storage / db connection
-	pgsql, err := repository.NewPgsqlStorage(dsn, true)
+	config, err := app.LoadConfig()
 	if err != nil {
 		return err
 	}
 
-	// Only use in-app scheduling when needed
-	shouldSchedule := os.Getenv("SCHEDULE") == "true"
-	api.BeginPolling(pgsql, shouldSchedule)
+	pgsql, err := repository.NewStorage(config.DatabaseURL, true)
+	if err != nil {
+		return err
+	}
 
+	if config.ScheduledScraping {
+		for {
+			err = updateIncidentDatabase(pgsql)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Fetch Error: %s\n", err)
+			}
+
+			<-time.After(time.Minute * 3)
+		}
+
+	} else {
+		updateIncidentDatabase(pgsql)
+	}
+	return nil
+}
+
+func updateIncidentDatabase(repo api.IncidentRepository) error {
+	incidents, err := api.FetchCmpdActiveIncidents()
+	if err != nil {
+		return err
+	}
+
+	activeEventIDs := make([]string, len(incidents))
+	for i, incident := range incidents {
+		activeEventIDs[i] = incident.ID
+	}
+
+	if len(activeEventIDs) < 1 {
+		return nil
+	}
+
+	repo.UpsertIncidentArray(incidents)
+	repo.UpdateActiveIncidents(activeEventIDs)
+	fmt.Printf("[%s] Fetched %d active incidents\n", time.Now().UTC().Format(time.ANSIC), len(incidents))
 	return nil
 }
