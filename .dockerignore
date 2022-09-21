@@ -1,0 +1,4 @@
+# This is the docker context for go application build
+# so we can exclude these directories
+web/
+bin/

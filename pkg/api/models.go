@@ -29,7 +29,7 @@ type Incident struct {
 	Active bool
 }
 
-type IncidentFilter struct {
+type IncidentFilterRequest struct {
 	// Start date for the date range
 	DateRangeStart time.Time
 	// End date for the date range
