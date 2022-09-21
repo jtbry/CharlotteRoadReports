@@ -29,6 +29,7 @@ func run() error {
 	}
 
 	if config.ScheduledScraping {
+		fmt.Println("Starting scheduled scraping")
 		for {
 			err = updateIncidentDatabase(pgsql)
 			if err != nil {

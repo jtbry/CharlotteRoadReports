@@ -12,6 +12,16 @@ services:
       - '3306:3306'
     volumes: 
       - db:/var/lib/mysql
+  scraper:
+    container_name: scraper
+    build: 
+      context: ..
+      dockerfile: ./build/package/scraper.Dockerfile
+    depends_on:
+      - database
+    environment:
+      - SCHEDULED_SCRAPING=true
+      - DATABASE_URL=cltrr:passw0rd@tcp(database:3306)/cltrr?parseTime=true
   server:
     container_name: server
     build: 
