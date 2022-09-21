@@ -1,14 +1,17 @@
+
 services:
   database:
     container_name: database
-    image: postgres:14.1-alpine
+    image: mysql
     environment:
-      - POSTGRES_USER=cltrr
-      - POSTGRES_PASSWORD=passw0rd
+      MYSQL_USER: cltrr
+      MYSQL_PASSWORD: passw0rd
+      MYSQL_DATABASE: cltrr
+      MYSQL_ROOT_PASSWORD: rootpass
     ports:
-      - '5432:5432'
+      - '3306:3306'
     volumes: 
-      - db:/var/lib/postgresql/data
+      - db:/var/lib/mysql
   server:
     container_name: server
     build: 
@@ -19,10 +22,10 @@ services:
     depends_on:
       - database
     environment:
-      - DATABASE_URL=postgresql://cltrr:passw0rd@database:5432/cltrr
+      - DATABASE_URL=cltrr:passw0rd@tcp(database:3306)/cltrr?parseTime=true
   client:
     container_name: client
-    build: 
+    build:
       context: ../web
       dockerfile: ../build/package/client.Dockerfile
     ports:

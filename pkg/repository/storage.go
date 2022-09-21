@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/jtbry/CharlotteRoadReports/pkg/api"
-	"gorm.io/driver/postgres"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -15,7 +15,7 @@ type storage struct {
 
 // Create a new storage object from gorm.DB
 func NewStorage(dsn string, shouldMigrate bool) (api.IncidentRepository, error) {
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		PrepareStmt: true,
 	})
 	if err != nil {

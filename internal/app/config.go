@@ -15,6 +15,22 @@ type AppConfig struct {
 	ScheduledScraping bool   `mapstructure:"SCHEDULED_SCRAPING"`
 }
 
+func (c *AppConfig) validate() error {
+	// Validate that a DSN is given
+	if c.DatabaseURL == "" {
+		return errors.New("DATABASE_URL is required")
+	}
+
+	// Validate client build files exist if serving client
+	if c.ServeClient {
+		if _, err := os.Stat("./web/build"); os.IsNotExist(err) {
+			return errors.New("web/build does not exist")
+		}
+	}
+
+	return nil
+}
+
 func LoadConfig() (AppConfig, error) {
 	// Set defaults
 	viper.SetDefault("ENV", "development")
@@ -33,27 +49,16 @@ func LoadConfig() (AppConfig, error) {
 
 	// Read config
 	viper.AutomaticEnv()
-	err := viper.ReadInConfig()
-	if err != nil {
-		return AppConfig{}, err
-	}
+	viper.ReadInConfig()
 
 	// Unmarshal config
 	var config AppConfig
-	err = viper.Unmarshal(&config)
-	if err != nil {
-		return AppConfig{}, err
-	}
+	viper.Unmarshal(&config)
 
 	// Validate config
-	if config.DatabaseURL == "" {
-		return AppConfig{}, errors.New("DATABASE_URL is required")
-	}
-
-	if config.ServeClient {
-		if _, err := os.Stat("./web/build"); os.IsNotExist(err) {
-			return AppConfig{}, errors.New("web/build does not exist")
-		}
+	err := config.validate()
+	if err != nil {
+		return AppConfig{}, err
 	}
 
 	return config, nil

@@ -8,7 +8,7 @@ type Incident struct {
 	// DateTimestamp the incident started
 	StartTimestamp time.Time
 	// DateTimestamp the incident ended
-	EndTimestamp time.Time
+	EndTimestamp *time.Time
 	// Short version of TypeDesc
 	TypeCode string
 	// Description
