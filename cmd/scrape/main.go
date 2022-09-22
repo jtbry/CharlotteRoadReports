@@ -1,18 +1,31 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"time"
 
 	"github.com/jtbry/CharlotteRoadReports/internal/app"
 	"github.com/jtbry/CharlotteRoadReports/pkg/api"
 	"github.com/jtbry/CharlotteRoadReports/pkg/repository"
+	log "github.com/sirupsen/logrus"
 )
+
+func init() {
+	log.SetFormatter(&log.TextFormatter{
+		TimestampFormat: "2006 Jan 06 15:04 MST",
+		FullTimestamp:   true,
+	})
+
+	if os.Getenv("ENV") == "production" {
+		log.SetLevel(log.InfoLevel)
+	} else {
+		log.SetLevel(log.DebugLevel)
+	}
+}
 
 func main() {
 	if err := run(); err != nil {
-		fmt.Fprintf(os.Stderr, "Startup Error: %s\n", err)
+		log.WithError(err).Error("Startup Error")
 		return
 	}
 }
@@ -29,11 +42,11 @@ func run() error {
 	}
 
 	if config.ScheduledScraping {
-		fmt.Println("Starting scheduled scraping")
+		log.Info("Starting scheduled scraping")
 		for {
 			err = updateIncidentDatabase(pgsql)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Fetch Error: %s\n", err)
+				log.WithError(err).Error("updateIncidentDatabase failed")
 			}
 
 			<-time.After(time.Minute * 3)
@@ -62,6 +75,6 @@ func updateIncidentDatabase(repo api.IncidentRepository) error {
 
 	repo.UpsertIncidentArray(incidents)
 	repo.UpdateActiveIncidents(activeEventIDs)
-	fmt.Printf("[%s] Fetched %d active incidents\n", time.Now().UTC().Format(time.ANSIC), len(incidents))
+	log.Infof("Updated %d incidents", len(incidents))
 	return nil
 }

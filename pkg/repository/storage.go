@@ -1,12 +1,15 @@
 package repository
 
 import (
+	"log"
+	"os"
 	"time"
 
 	"github.com/jtbry/CharlotteRoadReports/pkg/api"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"gorm.io/gorm/logger"
 )
 
 type storage struct {
@@ -15,8 +18,18 @@ type storage struct {
 
 // Create a new storage object from gorm.DB
 func NewStorage(dsn string, shouldMigrate bool) (api.IncidentRepository, error) {
+	logger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		logger.Config{
+			SlowThreshold: time.Second,
+			LogLevel:      logger.Warn,
+			Colorful:      false,
+		},
+	)
+
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		PrepareStmt: true,
+		Logger:      logger,
 	})
 	if err != nil {
 		return nil, err

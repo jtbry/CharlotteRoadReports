@@ -2,10 +2,11 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type cmpdIncident struct {
@@ -33,14 +34,14 @@ func cmpdIncidentToIncident(inc cmpdIncident) Incident {
 	// Load America/New_York time zone
 	loc, err := time.LoadLocation("America/New_York")
 	if err != nil {
-		fmt.Println(err)
+		log.WithError(err).Warn("Failed to load America/New_York time zone")
 		loc = time.UTC
 	}
 
 	// Convert string to time.Time
 	startTimestamp, err := time.ParseInLocation("2006-01-02T15:04:05", inc.EventDateTime, loc)
 	if err != nil {
-		fmt.Println(err)
+		log.Warnf("(%s) Failed Timestamp Parse", inc.EventNo, inc.EventDateTime)
 		startTimestamp = time.Now()
 	}
 
