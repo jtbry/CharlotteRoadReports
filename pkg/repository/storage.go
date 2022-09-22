@@ -55,8 +55,9 @@ func runMigrations(s *storage) error {
 
 // Find all active incidents
 func (s *storage) FindActiveIncidents() []api.Incident {
+	// TODO: remove sorting and move to client side when needed
 	actives := make([]api.Incident, 0)
-	s.db.Where("active = ?", true).Order("start_timestamp").Find(&actives)
+	s.db.Where("active = ?", true).Find(&actives)
 	return actives
 }
 
@@ -77,7 +78,7 @@ func (s *storage) FilterIncidents(filter api.IncidentFilterRequest) []api.Incide
 		query = query.Where("address LIKE ?", "%"+filter.AddressSearch+"%")
 	}
 	results := make([]api.Incident, 0)
-	query.Order("start_timestamp").Find(&results)
+	query.Find(&results)
 	return results
 }
 
