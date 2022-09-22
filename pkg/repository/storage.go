@@ -1,11 +1,10 @@
 package repository
 
 import (
-	"log"
-	"os"
 	"time"
 
 	"github.com/jtbry/CharlotteRoadReports/pkg/api"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -19,7 +18,7 @@ type storage struct {
 // Create a new storage object from gorm.DB
 func NewStorage(dsn string, shouldMigrate bool) (api.IncidentRepository, error) {
 	logger := logger.New(
-		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		log.StandardLogger(),
 		logger.Config{
 			SlowThreshold: time.Second,
 			LogLevel:      logger.Warn,
@@ -70,7 +69,7 @@ func (s *storage) FindIncidentById(eventNo string) api.Incident {
 
 // Find all incidents that match the given filters
 func (s *storage) FilterIncidents(filter api.IncidentFilterRequest) []api.Incident {
-	query := s.db.Where("start_timestamp >= ? AND start_timestamp <= ?", filter.DateRangeStart, filter.DateRangeEnd, filter.ActivesOnly)
+	query := s.db.Where("start_timestamp >= ? AND start_timestamp <= ?", filter.DateRangeStart, filter.DateRangeEnd)
 	if filter.ActivesOnly {
 		query = query.Where("active = true")
 	}
