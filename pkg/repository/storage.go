@@ -74,7 +74,7 @@ func (s *storage) FilterIncidents(filter api.IncidentFilterRequest) []api.Incide
 		query = query.Where("active = true")
 	}
 	if filter.AddressSearch != "" {
-		query = query.Where("address ILIKE ?", "%"+filter.AddressSearch+"%")
+		query = query.Where("address LIKE ?", "%"+filter.AddressSearch+"%")
 	}
 	results := make([]api.Incident, 0)
 	query.Order("start_timestamp").Find(&results)

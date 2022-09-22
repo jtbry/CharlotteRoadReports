@@ -26,6 +26,12 @@ Please see the provided `dev.env` file and change it as needed. Further configur
 
 ### 3. Run the project
 
+#### **Docker**
+
+From the root directory, run `docker compose -f ./deployments/docker-compose.yml -p "cltrr" up -d`
+
+#### **Manual**
+
 You can build two binaries from this project
 
 - **server**: Runs the back-end HTTP API by default but can be configured to serve the front-end as well.
