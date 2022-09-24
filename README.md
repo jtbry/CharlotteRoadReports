@@ -13,7 +13,7 @@ CharlotteRoadReports is an open source web application that tracks and displays 
 Requirements
 
 - Go 1.15+
-- PostgreSQL Server 12.2+
+- MySQL Server
 - Node >= 10.16 and npm >= 5.6
 
 ### 1. Clone the Repo
