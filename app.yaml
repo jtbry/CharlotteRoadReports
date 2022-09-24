@@ -1,5 +1,7 @@
+# Google Cloud deployment file
 runtime: go116
-main: ./cmd/web
+main: ./cmd/server
 
-includes:
-  - prod_env.yaml
+env_variables:
+  ENV: production
+  SERVE_CLIENT: true

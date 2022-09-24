@@ -1,0 +1,47 @@
+
+services:
+  database:
+    container_name: database
+    image: mysql
+    environment:
+      MYSQL_USER: cltrr
+      MYSQL_PASSWORD: passw0rd
+      MYSQL_DATABASE: cltrr
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - '3306:3306'
+    volumes: 
+      - db:/var/lib/mysql
+  scraper:
+    container_name: scraper
+    build: 
+      context: ..
+      dockerfile: ./build/package/scraper.Dockerfile
+    depends_on:
+      - database
+    environment:
+      - SCHEDULED_SCRAPING=true
+      - DATABASE_URL=cltrr:passw0rd@tcp(database:3306)/cltrr?parseTime=true
+  server:
+    container_name: server
+    build: 
+      context: ..
+      dockerfile: ./build/package/server.Dockerfile
+    ports:
+      - '8080:8080'
+    depends_on:
+      - database
+    environment:
+      - DATABASE_URL=cltrr:passw0rd@tcp(database:3306)/cltrr?parseTime=true
+  client:
+    container_name: client
+    build:
+      context: ../web
+      dockerfile: ../build/package/client.Dockerfile
+    ports:
+      - '80:80'
+    depends_on:
+      - server
+volumes:
+  db:
+    driver: local
