@@ -55,7 +55,6 @@ func runMigrations(s *storage) error {
 
 // Find all active incidents
 func (s *storage) FindActiveIncidents() []api.Incident {
-	// TODO: remove sorting and move to client side when needed
 	actives := make([]api.Incident, 0)
 	s.db.Where("active = ?", true).Find(&actives)
 	return actives
@@ -83,16 +82,19 @@ func (s *storage) FilterIncidents(filter api.IncidentFilterRequest) []api.Incide
 }
 
 // Update which incidents are active given an array of active IDs
-func (s *storage) UpdateActiveIncidents(actives []string) {
-	s.db.Table("incidents").Where("active = true").Not(map[string]interface{}{"id": actives}).Updates(map[string]interface{}{
+func (s *storage) UpdateActiveIncidents(incidents []api.Incident) {
+	activeIDs := make([]string, len(incidents))
+	for i, incident := range incidents {
+		activeIDs[i] = incident.ID
+	}
+
+	s.db.Table("incidents").Where("active = true").Not(map[string]interface{}{"id": activeIDs}).Updates(map[string]interface{}{
 		"active":        false,
 		"end_timestamp": time.Now(),
 	})
-}
 
-// Upsert a list of incidents updating the incident on conflict
-func (s *storage) UpsertIncidentArray(incidents []api.Incident) {
 	s.db.Clauses(clause.OnConflict{
-		UpdateAll: true,
+		Columns:   []clause.Column{{Name: "id"}},
+		DoUpdates: clause.AssignmentColumns([]string{"active", "start_timestamp", "end_timestamp"}),
 	}).Create(&incidents)
 }

@@ -73,8 +73,7 @@ func updateIncidentDatabase(repo api.IncidentRepository) error {
 		return nil
 	}
 
-	repo.UpsertIncidentArray(incidents)
-	repo.UpdateActiveIncidents(activeEventIDs)
+	repo.UpdateActiveIncidents(incidents)
 	log.Infof("Updated %d incidents", len(incidents))
 	return nil
 }
