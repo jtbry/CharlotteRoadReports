@@ -70,6 +70,7 @@ func updateIncidentDatabase(repo api.IncidentRepository) error {
 	}
 
 	if len(activeEventIDs) < 1 {
+		log.Warnf("No active incidents found")
 		return nil
 	}
 
